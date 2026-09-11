@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Kake Commerce — Full Stack eCommerce Platform</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F7F8FC;--surface:#FFFFFF;--surface2:#F1F3F9;--border:#E2E5EF;--border2:#C8CEDF;
+  --accent:#5B4CF5;--accent-dim:rgba(91,76,245,0.08);--accent-border:rgba(91,76,245,0.2);
+  --green:#059669;--green-dim:rgba(5,150,105,0.08);--green-border:rgba(5,150,105,0.18);
+  --amber:#D97706;--amber-dim:rgba(217,119,6,0.08);--amber-border:rgba(217,119,6,0.2);
+  --red:#DC2626;--red-dim:rgba(220,38,38,0.08);--red-border:rgba(220,38,38,0.18);
+  --text:#0F172A;--text-mid:#64748B;--text-dim:#94A3B8;
+  --sans:'Inter',system-ui,sans-serif;--mono:'JetBrains Mono',monospace;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+html,body{height:100%;overflow:hidden;}
+body{font-family:var(--sans);background:var(--bg);color:var(--text);font-size:13px;display:flex;flex-direction:column;-webkit-font-smoothing:antialiased;}
+
+.topbar{height:52px;background:var(--accent);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;}
+.logo{font-size:16px;font-weight:800;color:white;letter-spacing:-0.03em;}
+.logo-sub{font-size:10px;color:rgba(255,255,255,0.55);font-family:var(--mono);margin-left:4px;}
+.tabs{display:flex;gap:1px;margin-left:16px;}
+.tab{padding:6px 14px;border-radius:6px;font-size:12px;font-weight:500;color:rgba(255,255,255,0.65);cursor:pointer;background:none;border:none;font-family:var(--sans);transition:all 0.12s;}
+.tab.active{background:rgba(255,255,255,0.18);color:white;font-weight:600;}
+.tab:hover:not(.active){background:rgba(255,255,255,0.1);color:white;}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:10px;color:rgba(255,255,255,0.5);font-family:var(--mono);}
+
+.main{flex:1;display:flex;overflow:hidden;}
+.page{flex:1;overflow:hidden;display:none;}
+.page.active{display:flex;}
+
+/* SIDEBAR */
+.sidebar{width:196px;flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);padding:10px 8px;overflow-y:auto;}
+.sl{font-size:9px;font-weight:700;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin:14px 8px 5px;display:block;}
+.sl:first-child{margin-top:2px;}
+.slink{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:7px;cursor:pointer;font-size:12px;font-weight:500;color:var(--text-mid);transition:all 0.12s;}
+.slink:hover{background:var(--surface2);}
+.slink.active{background:var(--accent-dim);color:var(--accent);font-weight:600;}
+.sbadge{font-size:9px;font-weight:700;padding:1px 5px;border-radius:3px;background:var(--red-dim);color:var(--red);margin-left:auto;border:1px solid var(--red-border);}
+
+.content{flex:1;overflow-y:auto;padding:20px 24px;}
+.page-title{font-size:18px;font-weight:800;letter-spacing:-0.03em;margin-bottom:3px;}
+.page-sub{font-size:11px;color:var(--text-dim);margin-bottom:18px;}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:18px;}
+.stat{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 16px;}
+.stat-label{font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.07em;margin-bottom:4px;}
+.stat-val{font-family:var(--mono);font-size:20px;font-weight:700;line-height:1;margin-bottom:2px;}
+.stat-sub{font-size:10px;color:var(--text-dim);}
+
+/* PANELS */
+.panel{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;margin-bottom:14px;}
+.panel-hdr{padding:10px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.panel-title{font-size:12px;font-weight:700;}
+.panel-action{font-size:11px;color:var(--accent);cursor:pointer;font-weight:500;}
+table{width:100%;border-collapse:collapse;}
+th{font-size:9px;font-weight:700;color:var(--text-dim);text-transform:uppercase;letter-spacing:0.06em;padding:8px 16px;text-align:left;background:var(--surface2);border-bottom:1px solid var(--border);}
+td{padding:9px 16px;border-bottom:1px solid var(--border);font-size:12px;vertical-align:middle;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:var(--surface2);cursor:pointer;}
+.pill{font-size:9px;font-weight:700;padding:2px 7px;border-radius:3px;display:inline-block;}
+.p-green{background:var(--green-dim);color:var(--green);border:1px solid var(--green-border);}
+.p-amber{background:var(--amber-dim);color:var(--amber);border:1px solid var(--amber-border);}
+.p-red{background:var(--red-dim);color:var(--red);border:1px solid var(--red-border);}
+.p-blue{background:var(--accent-dim);color:var(--accent);border:1px solid var(--accent-border);}
+.p-gray{background:var(--surface2);color:var(--text-mid);border:1px solid var(--border);}
+.mono{font-family:var(--mono);font-weight:600;}
+
+/* ARCH PANEL */
+.arch-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;}
+.arch-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:16px;}
+.arch-title{font-size:11px;font-weight:700;margin-bottom:10px;display:flex;align-items:center;gap:6px;}
+.arch-icon{font-size:16px;}
+.arch-list{list-style:none;display:flex;flex-direction:column;gap:5px;}
+.arch-list li{font-size:11px;color:var(--text-mid);padding-left:14px;position:relative;line-height:1.5;}
+.arch-list li::before{content:'▸';position:absolute;left:0;color:var(--accent);font-size:9px;top:2px;}
+.arch-list li strong{color:var(--text);}
+.code-block{background:#0F172A;border-radius:8px;padding:14px;font-family:var(--mono);font-size:10px;line-height:1.7;color:#E2E8F0;overflow-x:auto;margin-top:10px;}
+.kw{color:#7C3AED;}.str{color:#10B981;}.fn{color:#F59E0B;}.cm{color:#475569;}.type{color:#38BDF8;}
+
+/* EVENT FEED */
+.feed-wrap{background:var(--surface);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.feed-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:8px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;flex-shrink:0;}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}
+.feed-body{max-height:220px;overflow-y:auto;padding:8px;}
+.event{display:flex;gap:8px;padding:7px 8px;border-radius:6px;margin-bottom:3px;border:1px solid transparent;font-size:11px;transition:background 0.1s;}
+.event:hover{background:var(--surface2);}
+.event-time{font-family:var(--mono);font-size:9px;color:var(--text-dim);flex-shrink:0;margin-top:1px;width:52px;}
+.event.order{border-color:rgba(5,150,105,0.12);background:rgba(5,150,105,0.03);}
+.event.payment{border-color:rgba(91,76,245,0.12);background:rgba(91,76,245,0.02);}
+.event.inventory{border-color:rgba(217,119,6,0.12);background:rgba(217,119,6,0.02);}
+.event.refund{border-color:rgba(220,38,38,0.1);background:rgba(220,38,38,0.02);}
+.event-body strong{display:block;font-weight:600;margin-bottom:1px;}
+.event-body span{color:var(--text-mid);}
+.sim-btn{padding:6px 14px;background:var(--accent);color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;font-family:var(--sans);}
+
+.statusbar{height:26px;background:var(--accent);display:flex;align-items:center;padding:0 16px;gap:16px;flex-shrink:0;}
+.sb{font-family:var(--mono);font-size:9px;color:rgba(255,255,255,0.55);}
+.sb.live{color:rgba(255,255,255,0.9);}
+::-webkit-scrollbar{width:4px;}::-webkit-scrollbar-track{background:transparent;}::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="logo">Kake<span class="logo-sub"> · Full Stack eCommerce Platform · Node.js + React</span></div>
+  <div class="tabs">
+    <button class="tab active" onclick="show('orders',this)">Orders</button>
+    <button class="tab" onclick="show('catalog',this)">Catalog</button>
+    <button class="tab" onclick="show('events',this)">Event Bus</button>
+    <button class="tab" onclick="show('arch',this)">Architecture</button>
+  </div>
+  <div class="topbar-right">Node.js · React · GraphQL · PostgreSQL · MongoDB · Redis · AWS</div>
+</div>
+
+<div class="main">
+
+  <!-- ORDERS -->
+  <div class="page active" id="page-orders">
+    <div class="sidebar">
+      <span class="sl">Orders</span>
+      <div class="slink active">All Orders</div>
+      <div class="slink" onclick="toast('📦','Pending orders')">Pending <div class="sbadge">7</div></div>
+      <div class="slink" onclick="toast('🚚','Fulfilled orders')">Fulfilled</div>
+      <div class="slink" onclick="toast('↩','Refunds')">Refunds <div class="sbadge">2</div></div>
+      <span class="sl">Payments</span>
+      <div class="slink" onclick="toast('💳','Payment processing')">Processing <div class="sbadge">3</div></div>
+      <div class="slink" onclick="toast('✓','Captured payments')">Captured</div>
+      <div class="slink" onclick="toast('⚠️','Failed payments')">Failed <div class="sbadge">1</div></div>
+      <span class="sl">Reports</span>
+      <div class="slink" onclick="toast('📊','Revenue report')">Revenue</div>
+      <div class="slink" onclick="toast('📈','Analytics')">Analytics</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Order Management</div>
+      <div class="page-sub">REST API + PostgreSQL · Idempotent writes · Event-driven fulfillment · Redis queue</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">GMV Today</div><div class="stat-val" style="color:var(--accent)">$148K</div><div class="stat-sub">↑ 22% vs yesterday</div></div>
+        <div class="stat"><div class="stat-label">Orders</div><div class="stat-val" style="color:var(--green)">842</div><div class="stat-sub">↑ 18% vs yesterday</div></div>
+        <div class="stat"><div class="stat-label">Pending</div><div class="stat-val" style="color:var(--amber)">7</div><div class="stat-sub">Awaiting fulfillment</div></div>
+        <div class="stat"><div class="stat-label">Failed Payments</div><div class="stat-val" style="color:var(--red)">1</div><div class="stat-sub">Requires retry</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Recent Orders</div><div class="panel-action" onclick="toast('✦','Exporting orders to CSV...')">Export CSV</div></div>
+        <table>
+          <tr><th>Order ID</th><th>Customer</th><th>Items</th><th>Total</th><th>Payment</th><th>Fulfillment</th><th>Status</th></tr>
+          <tr onclick="toast('📦','Opening order #KC-10042')"><td class="mono">#KC-10042</td><td>Sarah Chen</td><td>3 items</td><td class="mono">$284.00</td><td><span class="pill p-green">Captured</span></td><td><span class="pill p-green">Shipped</span></td><td><span class="pill p-green">Complete</span></td></tr>
+          <tr onclick="toast('📦','Opening order #KC-10041')"><td class="mono">#KC-10041</td><td>Marcus Williams</td><td>1 item</td><td class="mono">$89.00</td><td><span class="pill p-green">Captured</span></td><td><span class="pill p-amber">Processing</span></td><td><span class="pill p-amber">In Progress</span></td></tr>
+          <tr onclick="toast('📦','Opening order #KC-10040')"><td class="mono">#KC-10040</td><td>Priya Patel</td><td>5 items</td><td class="mono">$612.00</td><td><span class="pill p-amber">Processing</span></td><td><span class="pill p-gray">Pending</span></td><td><span class="pill p-amber">Pending</span></td></tr>
+          <tr onclick="toast('📦','Opening order #KC-10039')"><td class="mono">#KC-10039</td><td>Jordan Lee</td><td>2 items</td><td class="mono">$156.00</td><td><span class="pill p-red">Failed</span></td><td><span class="pill p-gray">On Hold</span></td><td><span class="pill p-red">Action Required</span></td></tr>
+          <tr onclick="toast('📦','Opening order #KC-10038')"><td class="mono">#KC-10038</td><td>Alex Kim</td><td>1 item</td><td class="mono">$45.00</td><td><span class="pill p-green">Captured</span></td><td><span class="pill p-green">Delivered</span></td><td><span class="pill p-green">Complete</span></td></tr>
+          <tr onclick="toast('📦','Opening order #KC-10037')"><td class="mono">#KC-10037</td><td>Emma Torres</td><td>4 items</td><td class="mono">$399.00</td><td><span class="pill p-green">Captured</span></td><td><span class="pill p-green">Shipped</span></td><td><span class="pill p-green">Complete</span></td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">GraphQL Query — Orders with Pagination</div><div class="panel-action" onclick="toast('▶','Running query...')">▶ Run</div></div>
+        <div class="code-block"><span class="cm"># GraphQL — versioned API with cursor-based pagination</span>
+<span class="kw">query</span> <span class="fn">GetOrders</span>($first: <span class="type">Int</span>, $after: <span class="type">String</span>, $status: <span class="type">OrderStatus</span>) {
+  orders(first: $first, after: $after, status: $status) {
+    edges {
+      cursor
+      node {
+        id
+        status
+        total
+        customer { id email }
+        lineItems { product { sku } quantity unitPrice }
+        payment { status capturedAt gateway }
+        fulfillment { trackingNumber carrier estimatedDelivery }
+      }
+    }
+    pageInfo { hasNextPage endCursor totalCount }
+  }
+}</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CATALOG -->
+  <div class="page" id="page-catalog">
+    <div class="sidebar">
+      <span class="sl">Catalog</span>
+      <div class="slink active">All Products</div>
+      <div class="slink" onclick="toast('⚠️','Low stock products')">Low Stock <div class="sbadge">4</div></div>
+      <div class="slink" onclick="toast('📦','Inventory sync')">Inventory Sync</div>
+      <div class="slink" onclick="toast('🏷️','Categories')">Categories</div>
+      <span class="sl">Data Layer</span>
+      <div class="slink" onclick="toast('🗄️','PostgreSQL tables')">PostgreSQL</div>
+      <div class="slink" onclick="toast('🍃','MongoDB documents')">MongoDB</div>
+      <div class="slink" onclick="toast('⚡','Redis cache')">Redis Cache</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Product Catalog</div>
+      <div class="page-sub">PostgreSQL for structured data · MongoDB for product content · Redis for cached reads · event-driven inventory sync</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Total SKUs</div><div class="stat-val" style="color:var(--accent)">4,842</div><div class="stat-sub">Across 12 categories</div></div>
+        <div class="stat"><div class="stat-label">In Stock</div><div class="stat-val" style="color:var(--green)">4,612</div><div class="stat-sub">95.2% availability</div></div>
+        <div class="stat"><div class="stat-label">Low Stock</div><div class="stat-val" style="color:var(--amber)">4</div><div class="stat-sub">Below threshold</div></div>
+        <div class="stat"><div class="stat-label">Cache Hit Rate</div><div class="stat-val" style="color:var(--accent)">94%</div><div class="stat-sub">Redis · p99: 8ms</div></div>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Inventory — Low Stock Alerts</div><div class="panel-action" onclick="toast('📧','Sending reorder alerts...')">Trigger Reorders</div></div>
+        <table>
+          <tr><th>SKU</th><th>Product</th><th>In Stock</th><th>Threshold</th><th>DB Source</th><th>Action</th></tr>
+          <tr onclick="toast('📦','Viewing SKU KC-HOD-BLK-M')"><td class="mono">KC-HOD-BLK-M</td><td>Heavyweight Hoodie / Black / M</td><td style="color:var(--red);font-weight:700">2</td><td class="mono">10</td><td><span class="pill p-blue">PostgreSQL</span></td><td><span class="pill p-red">Reorder Now</span></td></tr>
+          <tr onclick="toast('📦','Viewing SKU KC-SNK-WHT-10')"><td class="mono">KC-SNK-WHT-10</td><td>Classic Sneaker / White / 10</td><td style="color:var(--amber);font-weight:700">6</td><td class="mono">10</td><td><span class="pill p-blue">PostgreSQL</span></td><td><span class="pill p-amber">Low Stock</span></td></tr>
+          <tr onclick="toast('📦','Viewing SKU KC-BUD-BLK')"><td class="mono">KC-BUD-BLK</td><td>Wireless Earbuds / Black</td><td style="color:var(--amber);font-weight:700">8</td><td class="mono">10</td><td><span class="pill p-blue">PostgreSQL</span></td><td><span class="pill p-amber">Low Stock</span></td></tr>
+          <tr onclick="toast('📦','Viewing SKU KC-CAP-NVY')"><td class="mono">KC-CAP-NVY</td><td>Snapback Cap / Navy</td><td style="color:var(--amber);font-weight:700">9</td><td class="mono">10</td><td><span class="pill p-blue">PostgreSQL</span></td><td><span class="pill p-amber">Low Stock</span></td></tr>
+        </table>
+      </div>
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">Data Model — Polyglot Persistence Strategy</div></div>
+        <div class="code-block"><span class="cm">// PostgreSQL — relational: orders, inventory, pricing, transactions</span>
+<span class="kw">model</span> <span class="fn">Product</span> {
+  id         <span class="type">String</span>    @id @default(cuid())
+  sku        <span class="type">String</span>    @unique
+  price      <span class="type">Decimal</span>
+  inventory  <span class="type">Int</span>
+  categoryId <span class="type">String</span>
+  lineItems  LineItem[]
+  @@index([sku, categoryId])
+}
+
+<span class="cm">// MongoDB — document: rich product content, attributes, media</span>
+{
+  <span class="str">"sku"</span>: <span class="str">"KC-HOD-BLK-M"</span>,
+  <span class="str">"description"</span>: <span class="str">"..."</span>,
+  <span class="str">"attributes"</span>: { <span class="str">"material"</span>: <span class="str">"400gsm cotton"</span>, <span class="str">"fit"</span>: <span class="str">"oversized"</span> },
+  <span class="str">"media"</span>: [{ <span class="str">"url"</span>: <span class="str">"..."</span>, <span class="str">"alt"</span>: <span class="str">"..."</span> }]
+}
+
+<span class="cm">// Redis — cached reads: product listings, search, cart sessions</span>
+<span class="fn">await</span> redis.<span class="fn">setex</span>(<span class="str">`product:${sku}`</span>, <span class="fn">300</span>, <span class="fn">JSON.stringify</span>(product));</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- EVENT BUS -->
+  <div class="page" id="page-events">
+    <div class="sidebar">
+      <span class="sl">Event Bus</span>
+      <div class="slink active">Live Feed</div>
+      <div class="slink" onclick="toast('📋','Dead letter queue')">Dead Letter <div class="sbadge">2</div></div>
+      <div class="slink" onclick="toast('🔄','Retry queue')">Retry Queue <div class="sbadge">1</div></div>
+      <span class="sl">Services</span>
+      <div class="slink" onclick="toast('📦','Order service')">Order Service</div>
+      <div class="slink" onclick="toast('💳','Payment service')">Payment Service</div>
+      <div class="slink" onclick="toast('🚚','Fulfillment service')">Fulfillment Service</div>
+      <div class="slink" onclick="toast('📊','Inventory service')">Inventory Service</div>
+      <div class="slink" onclick="toast('📧','Notification service')">Notification Service</div>
+    </div>
+    <div class="content">
+      <div class="page-title">Event-Driven Architecture</div>
+      <div class="page-sub">Node.js microservices · Redis Streams · idempotent consumers · at-least-once delivery</div>
+      <div class="stats">
+        <div class="stat"><div class="stat-label">Events Today</div><div class="stat-val" style="color:var(--accent)">18.4K</div><div class="stat-sub">Processed successfully</div></div>
+        <div class="stat"><div class="stat-label">Avg Latency</div><div class="stat-val" style="color:var(--green)">12ms</div><div class="stat-sub">p99: 48ms</div></div>
+        <div class="stat"><div class="stat-label">Dead Letter</div><div class="stat-val" style="color:var(--red)">2</div><div class="stat-sub">Max retries exceeded</div></div>
+        <div class="stat"><div class="stat-label">Throughput</div><div class="stat-val" style="color:var(--accent)">340/s</div><div class="stat-sub">Peak capacity</div></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+        <div class="feed-wrap">
+          <div class="feed-hdr">
+            <div class="live-dot"></div>
+            <div style="font-size:12px;font-weight:700;flex:1">Live Event Stream</div>
+            <button class="sim-btn" onclick="addEvent()">▶ Simulate</button>
+          </div>
+          <div class="feed-body" id="feed">
+            <div class="event order"><div class="event-time">09:44:12</div><div class="event-body"><strong>order.created — #KC-10042</strong><span>$284.00 · 3 items · payment pending</span></div></div>
+            <div class="event payment"><div class="event-time">09:44:13</div><div class="event-body"><strong>payment.captured — #KC-10042</strong><span>$284.00 · Stripe · idempotency key verified</span></div></div>
+            <div class="event inventory"><div class="event-time">09:44:14</div><div class="event-body"><strong>inventory.decremented — 3 SKUs</strong><span>Atomic update · Redis cache invalidated</span></div></div>
+            <div class="event order"><div class="event-time">09:44:15</div><div class="event-body"><strong>fulfillment.triggered — #KC-10042</strong><span>3PL webhook dispatched · tracking pending</span></div></div>
+            <div class="event payment"><div class="event-time">09:41:08</div><div class="event-body"><strong>payment.failed — #KC-10039</strong><span>Insufficient funds · retry queued · customer notified</span></div></div>
+            <div class="event inventory"><div class="event-time">09:38:22</div><div class="event-body"><strong>inventory.low-stock — KC-HOD-BLK-M</strong><span>Qty: 2 · below threshold · reorder triggered</span></div></div>
+          </div>
+        </div>
+        <div class="panel" style="margin-bottom:0">
+          <div class="panel-hdr"><div class="panel-title">Node.js Event Handler</div><div class="panel-action">TypeScript</div></div>
+          <div class="code-block" style="margin-top:0;border-radius:0"><span class="cm">// Idempotent order event consumer</span>
+<span class="kw">async function</span> <span class="fn">handleOrderCreated</span>(event: OrderEvent) {
+  <span class="cm">// Idempotency — deduplicate by event ID</span>
+  <span class="kw">const</span> processed = <span class="kw">await</span> redis.<span class="fn">get</span>(<span class="str">`evt:${event.id}`</span>);
+  <span class="kw">if</span> (processed) <span class="kw">return</span>;
+
+  <span class="kw">await</span> db.$transaction(<span class="kw">async</span> (tx) => {
+    <span class="cm">// Atomic inventory decrement</span>
+    <span class="kw">for</span> (<span class="kw">const</span> item <span class="kw">of</span> event.lineItems) {
+      <span class="kw">await</span> tx.inventory.<span class="fn">decrement</span>({
+        where: { sku: item.sku },
+        by: item.quantity,
+      });
+    }
+    <span class="kw">await</span> tx.order.<span class="fn">update</span>({
+      where: { id: event.orderId },
+      data: { status: <span class="str">'CONFIRMED'</span> }
+    });
+  });
+
+  <span class="kw">await</span> redis.<span class="fn">setex</span>(<span class="str">`evt:${event.id}`</span>, <span class="fn">86400</span>, <span class="str">'1'</span>);
+  <span class="kw">await</span> <span class="fn">publishEvent</span>(<span class="str">'fulfillment.trigger'</span>, event);
+}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ARCHITECTURE -->
+  <div class="page" id="page-arch">
+    <div class="sidebar">
+      <span class="sl">System Design</span>
+      <div class="slink active">Overview</div>
+      <div class="slink" onclick="toast('🗄️','Database layer')">Data Layer</div>
+      <div class="slink" onclick="toast('🔗','API design')">API Design</div>
+      <div class="slink" onclick="toast('☁️','Infrastructure')">Infrastructure</div>
+      <span class="sl">Observability</span>
+      <div class="slink" onclick="toast('📊','Metrics dashboard')">Metrics</div>
+      <div class="slink" onclick="toast('🔍','Distributed tracing')">Tracing</div>
+      <div class="slink" onclick="toast('📝','Structured logs')">Logs</div>
+    </div>
+    <div class="content">
+      <div class="page-title">System Architecture</div>
+      <div class="page-sub">Node.js microservices · React frontend · GraphQL + REST · PostgreSQL + MongoDB + Redis · AWS · CI/CD</div>
+      <div class="arch-grid">
+        <div class="arch-card">
+          <div class="arch-title"><div class="arch-icon">⚛️</div>Frontend — React + TypeScript</div>
+          <ul class="arch-list">
+            <li><strong>React 18</strong> with concurrent rendering and Suspense boundaries</li>
+            <li><strong>GraphQL client</strong> with normalized cache and optimistic updates</li>
+            <li><strong>Code splitting</strong> per route — initial bundle under 80KB gzipped</li>
+            <li><strong>SSR/SSG</strong> via Next.js for product pages — Core Web Vitals optimized</li>
+            <li><strong>Cypress E2E tests</strong> covering critical checkout and payment flows</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-title"><div class="arch-icon">⚙️</div>Backend — Node.js Microservices</div>
+          <ul class="arch-list">
+            <li><strong>Order Service</strong> — REST API with idempotency keys on all writes</li>
+            <li><strong>Payment Service</strong> — Stripe integration with webhook signature verification</li>
+            <li><strong>Inventory Service</strong> — atomic decrements, Redis cache, reorder events</li>
+            <li><strong>GraphQL Gateway</strong> — versioned schema with cursor-based pagination</li>
+            <li><strong>Event Bus</strong> — Redis Streams with at-least-once delivery guarantees</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-title"><div class="arch-icon">🗄️</div>Data Layer — Polyglot Persistence</div>
+          <ul class="arch-list">
+            <li><strong>PostgreSQL</strong> — orders, inventory, pricing, transactions; indexed on hot query paths</li>
+            <li><strong>MongoDB</strong> — product content, attributes, media; flexible schema per category</li>
+            <li><strong>Redis</strong> — cached reads (p99: 8ms), session storage, event stream, job queues</li>
+            <li><strong>Prisma ORM</strong> — type-safe queries, migrations, transaction support</li>
+            <li>Right database for each use case — not one-size-fits-all</li>
+          </ul>
+        </div>
+        <div class="arch-card">
+          <div class="arch-title"><div class="arch-icon">☁️</div>Infrastructure — AWS + CI/CD</div>
+          <ul class="arch-list">
+            <li><strong>AWS ECS</strong> — containerized Node.js services with auto-scaling</li>
+            <li><strong>CloudFront CDN</strong> — edge-cached static assets and SSR responses</li>
+            <li><strong>GitHub Actions</strong> — automated test, build, and deploy on every PR merge</li>
+            <li><strong>Datadog</strong> — metrics, distributed tracing, structured logs across all services</li>
+            <li><strong>p99 API latency: 42ms</strong> · <strong>99.9% uptime SLA</strong> maintained</li>
+          </ul>
+        </div>
+      </div>
+      <div class="panel" style="margin-top:14px">
+        <div class="panel-hdr"><div class="panel-title">REST API — Order Creation with Idempotency</div><div class="panel-action">Node.js · TypeScript · Express</div></div>
+        <div class="code-block" style="margin-top:0;border-radius:0 0 10px 10px"><span class="cm">// POST /api/v1/orders — idempotent with optimistic locking</span>
+router.<span class="fn">post</span>(<span class="str">'/orders'</span>, <span class="fn">authenticate</span>, <span class="kw">async</span> (req, res) => {
+  <span class="kw">const</span> key = req.headers[<span class="str">'idempotency-key'</span>];
+  <span class="kw">const</span> cached = <span class="kw">await</span> redis.<span class="fn">get</span>(<span class="str">`idem:${key}`</span>);
+  <span class="kw">if</span> (cached) <span class="kw">return</span> res.<span class="fn">json</span>(<span class="fn">JSON.parse</span>(cached));
+
+  <span class="kw">const</span> order = <span class="kw">await</span> db.$transaction(<span class="kw">async</span> (tx) => {
+    <span class="cm">// Validate and reserve inventory atomically</span>
+    <span class="kw">for</span> (<span class="kw">const</span> item <span class="kw">of</span> req.body.lineItems) {
+      <span class="kw">const</span> product = <span class="kw">await</span> tx.product.<span class="fn">findUniqueOrThrow</span>({ where: { sku: item.sku } });
+      <span class="kw">if</span> (product.inventory < item.quantity) <span class="kw">throw new</span> <span class="fn">InsufficientStockError</span>();
+    }
+    <span class="kw">return</span> tx.order.<span class="fn">create</span>({ data: { ...req.body, status: <span class="str">'PENDING'</span> } });
+  });
+
+  <span class="kw">await</span> <span class="fn">publishEvent</span>(<span class="str">'order.created'</span>, order);
+  <span class="kw">await</span> redis.<span class="fn">setex</span>(<span class="str">`idem:${key}`</span>, <span class="fn">86400</span>, <span class="fn">JSON.stringify</span>(order));
+  res.<span class="fn">status</span>(<span class="fn">201</span>).<span class="fn">json</span>(order);
+});</div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="statusbar">
+  <div class="sb live">● Live Demo</div>
+  <div class="sb">Node.js · React · TypeScript · GraphQL · REST · PostgreSQL · MongoDB · Redis · AWS · Event-Driven · Idempotent APIs</div>
+  <div class="sb" style="margin-left:auto">Built by Jaivik Parekh · jaivikparekh1320@gmail.com · Before applying to Kake</div>
+</div>
+
+<script>
+function show(v,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.getElementById('page-'+v).classList.add('active');
+}
+const evts=[
+  {type:'order',title:'order.created — #KC-'+(10043+Math.floor(Math.random()*5)),body:'New order · payment pending · inventory check queued'},
+  {type:'payment',title:'payment.captured — #KC-10043',body:'$312.00 · Stripe · idempotency key verified · fulfillment triggered'},
+  {type:'inventory',title:'inventory.decremented — 2 SKUs',body:'Atomic transaction · Redis cache invalidated · low-stock check passed'},
+  {type:'order',title:'fulfillment.triggered — #KC-10043',body:'3PL webhook dispatched · tracking number pending'},
+  {type:'inventory',title:'inventory.low-stock — KC-SNK-WHT-10',body:'Qty: 5 · threshold crossed · reorder event published'},
+];
+let ei=0;
+function addEvent(){
+  const e=evts[ei%evts.length];ei++;
+  const now=new Date();
+  const time=`${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+  const feed=document.getElementById('feed');
+  const div=document.createElement('div');
+  div.className=`event ${e.type}`;
+  div.innerHTML=`<div class="event-time">${time}</div><div class="event-body"><strong>${e.title}</strong><span>${e.body}</span></div>`;
+  div.style.cssText='opacity:0;transform:translateY(-6px);transition:all 0.25s;';
+  feed.insertBefore(div,feed.firstChild);
+  requestAnimationFrame(()=>{div.style.opacity='1';div.style.transform='translateY(0)';});
+  toast('⚡','Event processed: '+e.type);
+}
+function toast(icon,msg){
+  var ex=document.querySelector('.t-el');if(ex)ex.remove();
+  var t=document.createElement('div');t.className='t-el';
+  t.style.cssText='position:fixed;bottom:34px;right:16px;background:white;border:1px solid #E2E5EF;color:#0F172A;border-radius:9px;padding:9px 14px;display:flex;align-items:center;gap:8px;font-size:12px;z-index:9999;box-shadow:0 4px 20px rgba(0,0,0,0.1);transform:translateX(120%);transition:transform 0.25s;font-family:Inter,sans-serif;max-width:300px;';
+  t.innerHTML='<span style="font-size:14px">'+icon.split(' ')[0]+'</span><span>'+msg+'</span>';
+  document.body.appendChild(t);
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{t.style.transform='translateX(0)';}));
+  setTimeout(()=>{t.style.transform='translateX(120%)';setTimeout(()=>t.remove(),300);},3000);
+}
+</script>
+</body>
+</html>
